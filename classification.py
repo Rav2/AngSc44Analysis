@@ -18,7 +18,6 @@ def calculate_binary_coeff(TP, FP, TN, FN):
 		FPR = 1
 	else:
 		FPR = 1.0-TN/float(TN+FP)
-	print('[BINARY CLASSIFICATION DONE]')
 	return TPR, SPC, PPV, FPR
 
 
@@ -47,7 +46,8 @@ def binary_classification_simple(lors, d_tresholds):
 		FPR.append(fpr)
 		PPV.append(ppv)
 		SPC.append(spc)
-	return calculate_binary_coeff(TP, FP, TN, FN)
+	print("[BINARY CLASSIFICATION DONE]")
+	return TPR, FPR, PPV, SPC
 
 def binary_table(events, lors, edep_threshold, dist_threshold):
 	if 3*len(events) != len(lors):

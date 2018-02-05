@@ -105,6 +105,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
 	add_to_proper_hits_prompt = proper_hits_prompt.append
 
 	for f511_file_name in file_list_511:
+		print(f511_file_name)
 		f_511 = TFile(f511_file_name)
 		bufor = []
 		for event in f_511.Hits:
@@ -193,15 +194,16 @@ def count_sorted_lors(lors):
 	d_mid = 0
 	d_max = 0
 	for ii in range(len(lors)/3):
+		index = -10
 		for jj in range(3):
-			if lors[3*ii+jj].is_true_annihilation:
+			if lors[3*ii+jj].is_from_annihilation:
 				index = jj
 				break
 		if lors[3*ii+index].d < lors[3*ii+(index+1)%3].d and lors[3*ii+index].d < lors[3*ii+(index+2)%3].d:
 			d_min += 1
 		elif lors[3*ii+index].d < lors[3*ii+(index+1)%3].d or lors[3*ii+index].d < lors[3*ii+(index+2)%3].d:
 			d_mid += 1
-		else
+		else:
 			d_max += 1
 	annihilation_lors_no = float(d_min+d_mid+d_max)
 	# divide by the number of aniihilation lors to get fractions
