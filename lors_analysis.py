@@ -38,7 +38,6 @@ for nn in range(0, nloops, loop_step):
 
 	events = events_true+phantom_scatt
 	print(len(events_true), ' ', len(phantom_scatt), ' ', len(events))
-	dl.write_goja_output(events_true+phantom_scatt+detector_scatt+accidential)
 
 	lors, lors_from_annihilation, lors_with_prompt = dl.find_lors(events)
 	d1, d2, d3 = dl.count_sorted_lors(lors)

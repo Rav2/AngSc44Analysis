@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -132,14 +134,16 @@ def plot_position_and_time_distribution(events, filename="position_and_time_dist
 def plot_lors_fractions(d_min, d_mid, d_max, source_pars, filename):
 	if len(d_min) != len(d_mid) != len(d_max):
 		raise Exception("Improper dimensions od d arrays! Counting was done wrong!")
-	fig, ax = plt.subplots()
-	ax.set_title('Fractions of annihilation lors as a function of source dimension')
-	ax.set_xlabel('radius of the source cyllinder [mm]')
-	ax.set_ylabel('fraction [1]')
-	ax.plt(
-		source_pars, d_min, "b.-o",
-		source_pars, d_mid, "r.-^",
-		source_pars, d_max, "g.-*",
+	#fig, ax = plt.subplots()
+	
+	plt.title('Fractions of annihilation lors as a function of source dimension')
+	plt.xlabel('radius of the source cyllinder [mm]')
+	plt.ylabel('fraction [1]')
+	plt.plot(
+		source_pars, d_min, "b-",
+		source_pars, d_mid, "r-",
+		source_pars, d_max, "g-",
 		)
 	plt.savefig('results/'+filename)
+	plt.legend(("d_min", "d_mid", "d_max"))
 	print('[FRACTIONS OF LORS PLOTTED]')
