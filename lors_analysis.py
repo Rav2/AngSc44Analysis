@@ -14,19 +14,19 @@ file_list_prompt = []
 edep_cut = 0.06
 short_run = False 
 goja_event_analysis = False
-nloops = 100
-data_folder = "data/NEMA"
+nloops = 300
+data_folder = "data/NEMA3"
 file_list_511 = [data_folder+'/'+name for name in file_list_511]
 file_list_prompt = [data_folder+'/'+name for name in file_list_prompt]
 
 if nloops > 1:
-	file_list_511, file_list_prompt = prepare_fname_lists("anni", "prompt", data_folder, 100)
+	file_list_511, file_list_prompt = prepare_fname_lists("anni", "prompt", data_folder, nloops)
 	d_min = []
 	d_mid = []
 	d_max = []
 
 
-loop_step = 1
+loop_step = 10
 for nn in range(0, nloops, loop_step):
 	if(short_run):
 		events_true, phantom_scatt, detector_scatt, accidential = dl.load_data([file_list_511[-1]], [file_list_prompt[-1]], edep_cut, goja_event_analysis)

@@ -139,11 +139,9 @@ def plot_lors_fractions(d_min, d_mid, d_max, source_pars, filename):
 	plt.title('Fractions of annihilation lors as a function of source dimension')
 	plt.xlabel('radius of the source cyllinder [mm]')
 	plt.ylabel('fraction [1]')
-	plt.plot(
-		source_pars, d_min, "b-",
-		source_pars, d_mid, "r-",
-		source_pars, d_max, "g-",
-		)
-	plt.savefig('results/'+filename)
-	plt.legend(("d_min", "d_mid", "d_max"))
+	plt.plot(source_pars, d_min, "b-", label="d_min")
+	plt.plot(source_pars, d_mid, "r-", label="d_mid")
+	plt.plot(source_pars, d_max, "g-", label="d_max")
+	plt.legend()
+	plt.savefig("results/"+filename)
 	print('[FRACTIONS OF LORS PLOTTED]')

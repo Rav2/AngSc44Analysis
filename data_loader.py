@@ -193,6 +193,7 @@ def count_sorted_lors(lors):
 	d_min = 0
 	d_mid = 0
 	d_max = 0
+	print(len(lors), len(lors)/3)
 	for ii in range(len(lors)/3):
 		index = -10
 		for jj in range(3):
@@ -206,6 +207,8 @@ def count_sorted_lors(lors):
 		else:
 			d_max += 1
 	annihilation_lors_no = float(d_min+d_mid+d_max)
+	if annihilation_lors_no == 0:
+		return 0,0,0
 	# divide by the number of aniihilation lors to get fractions
 	return d_min/annihilation_lors_no, d_mid/annihilation_lors_no, d_max/annihilation_lors_no
 
