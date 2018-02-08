@@ -98,7 +98,7 @@ def find_coincidences(hits, edep_cut, use_goja_event_analysis=False):
 
 
 def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_analysis=False):
-	print('[LOADING 511 KEV DATA...]')
+	print('\n[LOADING 511 KEV DATA...]')
 	proper_hits_511 = []
 	proper_hits_prompt = []
 	add_to_proper_hits_511 = proper_hits_511.append
@@ -179,7 +179,7 @@ def find_lors(events):
 			theta = math.atan2(middleY, middleX)
 
 			if ii ==0:
-				is_true_annihilation = event[ii].coincType == CoincType.kTrue
+				is_true_annihilation = (event[ii].coincType == CoincType.kTrue)
 				lors.append(LOR(d, theta, is_true_annihilation)) # True for back-to-back emission
 				lors_annihilation.append(LOR(d, theta, is_true_annihilation))
 			else:
@@ -200,6 +200,8 @@ def count_sorted_lors(lors):
 			if lors[3*ii+jj].is_from_annihilation:
 				index = jj
 				break
+		if index == -10:
+			continue
 		if lors[3*ii+index].d < lors[3*ii+(index+1)%3].d and lors[3*ii+index].d < lors[3*ii+(index+2)%3].d:
 			d_min += 1
 		elif lors[3*ii+index].d < lors[3*ii+(index+1)%3].d or lors[3*ii+index].d < lors[3*ii+(index+2)%3].d:
@@ -210,6 +212,8 @@ def count_sorted_lors(lors):
 	if annihilation_lors_no == 0:
 		return 0,0,0
 	# divide by the number of aniihilation lors to get fractions
+	print("[ALL LORS: {}[".format(len(lors)))
+	print("[ANNIHILATION LORS FOUND: {}]".format(annihilation_lors_no))
 	return d_min/annihilation_lors_no, d_mid/annihilation_lors_no, d_max/annihilation_lors_no
 
 
