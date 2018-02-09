@@ -60,14 +60,11 @@ if use_second_data:
 
 if nloops > 1:
     r =range(1, nloops+1, loop_step)
-    f = plt.figure()
-    ax1 = plotter.plot_lors_fractions(dmin1, dmid1, dmax1, r, filename="fractions_of_lors")
     if use_second_data:
         r2 = range(1, nloops + 1, loop_step2)
-        ax2 = plotter.plot_lors_fractions(dmin2, dmid2, dmax2, r2, labels=["d_min2", "d_mid2", "d_max2"], style="-c-m-y",\
-                                          filename="fractions_of_lors")
-        f.axes.append(ax1)
-        f.axes.append(ax2)
-        plt.savefig("TWO_PLOTS.png")
+        plotter.plot_lors_fractions2(dmin1, dmid1, dmax1, r, dmin2, dmid2, dmax2, r2)
+    else:
+        plotter.plot_lors_fractions(dmin1, dmid1, dmax1, r, filename="fractions_of_lors")
+
 
 

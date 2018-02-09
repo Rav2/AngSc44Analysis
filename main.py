@@ -16,7 +16,7 @@ def event_check(events):
         x2 = event[1].posX
         y2 = event[1].posY
         d = math.sqrt((x1-x2)**2+(y1-y2)**2)
-        if d<400:
+        if d < 400:
             print('distance between two points caused by 511keV gammas is too small!')
             counter += 1
             print(d)

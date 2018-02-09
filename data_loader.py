@@ -72,7 +72,7 @@ def is_proper_hit(hit, edep_cut, use_goja_event_analysis=False):
     Checks if hit passes some basic selections.
     :param hit: Hit object.
     :param edep_cut: Value of lower cut on deposited energy.
-    :param use_goja_event_analysis: If true, then additional selection is made, requiring a single scattering in scintillator.
+    :param use_goja_event_analysis: 
     :return: True if hit passes all selections.
     """
     val = hit.nCrystalRayleigh==0 and hit.nPhantomRayleigh==0 \

@@ -194,3 +194,25 @@ def plot_lors_fractions(d_min, d_mid, d_max, source_pars, labels = ["d_min", "d_
     plt.savefig("results/"+filename)
     print('[FRACTIONS OF LORS PLOTTED]')
     return plt.gca()
+
+
+def plot_lors_fractions2(d_min1, d_mid1, d_max1, source_pars1, d_min2, d_mid2, d_max2, source_pars2, filename="lors_fractions2.png"):
+
+    if len(d_min1) != len(d_mid1) != len(d_max1) or len(d_min2) != len(d_mid2) != len(d_max2):
+        raise Exception("Improper dimensions od d arrays! Counting was done wrong!")
+
+    plt.title('Fractions of annihilation lors as a function of source dimension')
+    plt.xlabel('radius of the source cyllinder [mm]')
+    plt.ylabel('fraction [1]')
+    labels = ["d_min", "d_mid", "d_max", "d_min_phan", "d_mid_phan", "d_max_phan"]
+    plt.plot(source_pars1, d_min1, "b-", label=labels[0])
+    plt.plot(source_pars1, d_mid1, "g-", label=labels[1])
+    plt.plot(source_pars1, d_max1, "r-", label=labels[2])
+    plt.plot(source_pars2, d_min2, "y-", label=labels[3])
+    plt.plot(source_pars2, d_mid2, "m-", label=labels[4])
+    plt.plot(source_pars2, d_max2, "c-", label=labels[5])
+    plt.legend()
+    plt.savefig("results/"+filename)
+    print('[FRACTIONS OF LORS PLOTTED]')
+    return plt.gca()
+
