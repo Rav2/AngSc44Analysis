@@ -177,6 +177,8 @@ def plot_lors_fractions(d_min, d_mid, d_max, source_pars, labels = ["d_min", "d_
     :param d_min: Array containing the number of lors that were closest to the origin.
     :param d_mid: Array containing the number of lors that were not the closest nor the farthest.
     :param d_max: Array containing the number of lors that were farthest from the origin.
+    :param labels: Array containing labels for three sets of data.
+    :param style: 6 char string defining the line style for 3 sets of data, e.g. style="b-r-g-".
     :param source_pars: Array containing values of source's radii. 
     :param filename: Name of the output file.
     :return: Axis object with the plot.
@@ -197,7 +199,20 @@ def plot_lors_fractions(d_min, d_mid, d_max, source_pars, labels = ["d_min", "d_
 
 
 def plot_lors_fractions2(d_min1, d_mid1, d_max1, source_pars1, d_min2, d_mid2, d_max2, source_pars2, filename="lors_fractions2.png"):
-
+    """
+    Draws fractions of LORs like plot_lors_fractions but for two sets of data. Making additional function for that was
+    necessary due to problems with matplotlib at the NCBJ cluster.
+    :param d_min1: Array containing the number of lors that were closest to the origin for data set 1.
+    :param d_mid1: Array containing the number of lors that were not the closest nor the farthest for data set 1.
+    :param d_max1: Array containing the number of lors that were farthest from the origin for data set 1.
+    :param source_pars1: Array containing values of source's radii for data set 1.
+    :param d_min2: Array containing the number of lors that were closest to the origin for data set 2.
+    :param d_mid2: Array containing the number of lors that were not the closest nor the farthest for data set 2.
+    :param d_max2: Array containing the number of lors that were farthest from the origin for data set 2.
+    :param source_pars2: Array containing values of source's radii for data set 2.
+    :param filename: Name of the output file.
+    :return: Axis object with the plot.
+    """
     if len(d_min1) != len(d_mid1) != len(d_max1) or len(d_min2) != len(d_mid2) != len(d_max2):
         raise Exception("Improper dimensions od d arrays! Counting was done wrong!")
 

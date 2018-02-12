@@ -1,4 +1,9 @@
 #!/bin/python2.7
+"""
+@author: Rafal Maselek
+This script analysis lors: it selects true lors and organizes them by their distance to the origin, relative amongst all
+three lors
+"""
 from __future__ import print_function
 import matplotlib.pyplot as plt
 import data_loader as dl
@@ -10,12 +15,21 @@ from main import *
 
 
 def analyse_lors(files_511, files_prompt, goja_event_analysis, loop_step):
+    """
+    Counts the number of true lors that have the smallest distance from the origin out of three, or the highest distance, 
+    or not the smallest nor the highest (middle one).
+    :param files_511: List of strings with file names of files with 511 keV data or single string in case of a single file.
+    :param files_prompt: List of strings with file names of files with prompt data or single string in case of a single file.
+    :param goja_event_analysis: If true, GOJA-like analysis will be performed.
+    :param loop_step: Loop step. E.g. if it is equal to 5, one out of 5 files will be analyzed.
+    :return: Arrays d_min, d_mid, d_max containing numbers of lors in given category. Each entry corresponds to different
+    file.
+    """
     d_min = []
     d_mid = []
     d_max = []
-    loop_step = 10
     for nn in range(0, nloops, loop_step):
-        if (short_run):
+        if short_run:
             events_true, phantom_scatt, detector_scatt, accidential = dl.load_data([files_511[-1]],
                                                                                    [files_prompt[-1]], edep_cut,
                                                                                    goja_event_analysis)
@@ -38,7 +52,10 @@ def analyse_lors(files_511, files_prompt, goja_event_analysis, loop_step):
         d_max.append(d3)
     return d_min, d_mid, d_max
 
-
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+# SCRIPT PARAMETERS #
 print('[START]')
 edep_cut = 0.06
 short_run = False 
@@ -49,15 +66,17 @@ loop_step = 10
 
 nloops2 = 100
 data_folder2 = "data/NEMA"
-use_second_data = True
+use_second_data = True # if yes, then second set of data will be analyzed and plotted on the same plot
 loop_step2 = 10
-
+# LOADING DATA #
 file_list_511, file_list_prompt = prepare_fname_lists("anni", "prompt", data_folder, nloops)
 dmin1, dmid1, dmax1 = analyse_lors(file_list_511, file_list_prompt, goja_event_analysis, loop_step)
+# Loading and analyzing second set of data
 if use_second_data:
     file_list_511, file_list_prompt = prepare_fname_lists("anni", "prompt", data_folder2, nloops2)
     dmin2, dmid2, dmax2 = analyse_lors(file_list_511, file_list_prompt, goja_event_analysis, loop_step2)
 
+# DRAWING PLOT(S) #
 if nloops > 1:
     r =range(1, nloops+1, loop_step)
     if use_second_data:

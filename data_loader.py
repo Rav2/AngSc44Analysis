@@ -241,6 +241,11 @@ def find_lors(events):
 
 
 def count_sorted_lors(lors):
+    """
+    True lors are classified by their relative distance to the origin: the smallest of three lors, the middle one, or the greatest.
+    :param lors: List of LOR objects grouped to events.
+    :return: Fraction of LORs that are: closest, middle, farthest from the origin in the whole data sample.
+    """
     d_min = 0
     d_mid = 0
     d_max = 0
@@ -260,6 +265,7 @@ def count_sorted_lors(lors):
         else:
             d_max += 1
     annihilation_lors_no = float(d_min+d_mid+d_max)
+    # avoid division by 0 error:
     if annihilation_lors_no == 0:
         return 0,0,0
     # divide by the number of aniihilation lors to get fractions
@@ -269,6 +275,12 @@ def count_sorted_lors(lors):
 
 
 def write_goja_output(coincidences, filename='goja_output.txt'):
+    """
+    Writes GOJA-like output to a text file.
+    :param coincidences: List of coincidences (pairs of Hits).
+    :param filename: Name of the output file.
+    :return: nothing
+    """
     with open(filename, 'w') as f:
         for coinc in coincidences:
             if len(coinc) < 2:

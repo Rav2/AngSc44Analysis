@@ -1,4 +1,8 @@
 #!/bin/python2.7
+"""
+@author: Rafal Maselek
+Main file of the scipt package
+"""
 from __future__ import print_function
 import data_loader as dl
 import plotter
@@ -8,6 +12,11 @@ import math
 
 
 def event_check(events):
+    """
+    Checks if distance between two points is larger than 400 mm
+    :param events: List of Events
+    :return: nothing (prints INFO if distance is lower than 400 mm)
+    """
     counter = 0
     wrong_events = []
     for event in events:
@@ -30,6 +39,14 @@ def event_check(events):
 
 
 def prepare_fname_lists(annihilation_fname, prompt_fname, folder, N):
+    """
+    Creates list of file names numerated by integers. 
+    :param annihilation_fname: Core name of the file with 511 keV data.
+    :param prompt_fname: Core name of the file with prompt data.
+    :param folder: Path to the folder containing files.
+    :param N: Maximal number of files, used to enumerate them. 
+    :return: Two lists: list of file names for 511 keV/prompt data
+    """
     file_list_511 =[]
     file_list_prompt = []
     for ii in range(1, N+1):
@@ -38,6 +55,10 @@ def prepare_fname_lists(annihilation_fname, prompt_fname, folder, N):
     return file_list_511, file_list_prompt
 
 def main():
+    """
+    Main function of the program.
+    :return: nothing
+    """
     print('[START]')
     file_list_511 = ['511keV_1.root', ]
     file_list_prompt = ['prompt_1.root']
@@ -72,5 +93,6 @@ def main():
     print('[EXIT]')
 
 
+# execute main only if not imported to other script
 if __name__ == "__main__":
     main()
