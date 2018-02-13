@@ -2,10 +2,11 @@
 @author: Rafal Maselek
 This File contains functions for making various plots.
 """
-from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+
 import matplotlib
 matplotlib.use('Agg')
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import pyplot as plt
 
 
 def plot_d_distribution(lors, filename):
@@ -118,6 +119,7 @@ def plot_edep_distribution(events, filename="edep_distribution.png"):
     print('[EDEP 511 keV: MIN={}, MAX={}'.format(min(edep_511), max(edep_511)))
     print('[EDEP 1157 keV: MIN={}, MAX={}'.format(min(edep_prompt), max(edep_prompt)))
     print('[EDEP DISTRIBUTION PLOTTED]')
+
 
 def plot_position_and_time_distribution(events, filename="position_and_time_distribution.png", only_511keV=False):
     """

@@ -61,10 +61,13 @@ class Hit:
 
 class LOR:
     """Class represnting a single Line of response in 2D."""
-    def __init__(self, d, theta, is_from_annihilation):
+    def __init__(self, d, theta, is_from_annihilation, is_prompt, annihilation_p, prompt_p):
         self.d = d # distance from the origin.
         self.theta = theta # angle between OX axis and vector connecting the origin and the center of LOR
         self.is_from_annihilation = is_from_annihilation # true if LOR connects two hits by un-scattered 511 keV gammas
+        self.is_prompt = is_prompt
+        self.annihilation_p = annihilation_p
+        self.prompt_p = prompt_p
 
 
 def is_proper_hit(hit, edep_cut, use_goja_event_analysis=False):
@@ -78,6 +81,7 @@ def is_proper_hit(hit, edep_cut, use_goja_event_analysis=False):
     val = hit.nCrystalRayleigh==0 and hit.nPhantomRayleigh==0 \
         and hit.edep >= edep_cut and hit.PDGEncoding == 22 \
         and (hit.processName[:-1].lower().strip() == 'compton' or hit.processName[:-1].lower().strip() ==  'compt')
+    # if use_goja_event_analysis==False then check additional constraint
     if not use_goja_event_analysis:
         return val and hit.nCrystalCompton==1 #and hit.nPhantomCompton==0
     else:
@@ -166,7 +170,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
     for f_prompt_file_name in file_list_prompt:
         f_prompt = TFile(f_prompt_file_name)
         for event in f_prompt.Hits :
-            if is_proper_hit(event, edep_cut, False):
+            if is_proper_hit(event, edep_cut, use_goja_event_analysis):
                 add_to_proper_hits_prompt(Hit(event))
             if 2*len(proper_hits_prompt) > len(proper_hits_511):
                 break
@@ -203,13 +207,13 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
             add_to_detector_scattered(ev)
         elif t == CoincType.kAccidental:
             add_to_accidental(ev)
-    print('[NO OF TRUE EVENTS: {}, NO OF PHANTOM-SCATTERED EVENTS: {}, NO OF DETECTOR-SCATTERED EVENTS: {}, NO OF ACCIDENTIAL EVENTS: {}]'\
+    print('[NO OF TRUE EVENTS: {}, NO OF PHANTOM-SCATTERED EVENTS: {}, NO OF DETECTOR-SCATTERED EVENTS: {}, NO OF ACCIDENTAL EVENTS: {}]'\
         .format(len(events_true), len(events_phantom_scattered), len(events_detector_scattered), len(events_accidental)))
     print('[DATA LOADED]')
     return events_true, events_phantom_scattered, events_detector_scattered, events_accidental
 
 
-def find_lors(events):
+def find_lors(events, histograms = []):
     """
     Finds LOR parameters: distance from the origin and angle between OX axis and vector from the origin to the center of LOR.
     Projections of 3D LORs onto OXY plane are analysed.
@@ -221,6 +225,8 @@ def find_lors(events):
     lors_with_prompt = []
     for event in events:
         for ii in range(3):
+            edep1 = event[ii].edep
+            edep2 = event[(ii+1)%3].edep
             middleX = 0.5*(event[ii].posX+event[(ii+1)%3].posX)
             middleY = 0.5*(event[ii].posY+event[(ii+1)%3].posY)
             A = -1.0*event[(ii+1)%3].posY + event[ii].posY
@@ -228,14 +234,36 @@ def find_lors(events):
             C = -1.0*event[ii].posY*B + event[ii].posX*(-1.0 * A)
             d = math.fabs(C)/math.sqrt(A*A+B*B)
             theta = math.atan2(middleY, middleX)
+            p511 = 1.0
+            p_prompt = 1.0
+            if len(histograms) > 0:
+                # find the probability that LOR is true
+                index = 0
+                
+                while histograms[0][index] < edep1:
+                    index += 1
+                p511 *= histograms[1][index]
+                index = 0
+                while histograms[0][index] < edep2:
+                    index += 1
+                p511 *= histograms[1][index]
+                # find the probability that LOR contains prompt
+                while histograms[0][index] < edep1:
+                    index += 1
+                p_prompt *= histograms[4][index]
+                index = 0
+                while histograms[0][index] < edep2:
+                    index += 1
+                p_prompt *= histograms[4][index]
+
 
             if ii ==0:
                 is_true_annihilation = (event[ii].coincType == CoincType.kTrue)
-                lors.append(LOR(d, theta, is_true_annihilation)) # True for back-to-back emission
-                lors_annihilation.append(LOR(d, theta, is_true_annihilation))
+                lors.append(LOR(d, theta, is_true_annihilation, False, p511, p_prompt)) # True for back-to-back emission
+                lors_annihilation.append(LOR(d, theta, is_true_annihilation, False, p511, p_prompt))
             else:
-                lors.append(LOR(d, theta, False))
-                lors_with_prompt.append(LOR(d, theta, False))
+                lors.append(LOR(d, theta, False, True, p511, p_prompt))
+                lors_with_prompt.append(LOR(d, theta, False, True, p511, p_prompt))
     print('[LORS FOUND]')
     return lors, lors_annihilation, lors_with_prompt
 

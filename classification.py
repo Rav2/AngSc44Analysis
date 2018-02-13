@@ -4,7 +4,7 @@ This file contains functions for statistical classification of events/lors.
 """
 #from data_loader.py import LOR
 import sys
-
+import numpy as np
 
 def calculate_binary_coeff(TP, FP, TN, FN):
     """
@@ -65,6 +65,60 @@ def binary_classification_simple(lors, d_thresholds):
         SPC.append(spc)
     print("[BINARY CLASSIFICATION DONE]")
     return TPR, FPR, PPV, SPC
+
+
+def remove_farthest_lor(lors):
+    grouped_lors = []
+    for ii in range(len(lors)//3):
+        two_lors = []
+        d = []
+        for jj in range(3):
+            d.append(lors[3*ii+jj].d)
+        max_d = max(d)
+        for jj in range(3):
+            if lors[3*ii+jj].d < max_d:
+                two_lors.append(lors[3*ii+jj])
+        if len(two_lors) == 2:
+            grouped_lors.append(two_lors)
+    print("[FARTHEST LORS REMOVED]")
+    return np.array(grouped_lors)
+
+
+def binary_classification_probability(pairs_of_lors, use_prompt=False):
+    for pair in pairs_of_lors:
+        FP=FN=TP=TN=0
+        p = []
+        if not use_prompt:
+            for lor in pair:
+                p.append(lor.annihilation_p)
+            for lor in pair:
+                if lor.annihilation_p == max(p):
+                    if lor.is_from_annihilation:
+                        TP += 1
+                    else:
+                        FP += 1
+                else:
+                    if lor.is_from_annihilation:
+                        FN += 1
+                    else:
+                        TN += 1
+        else:
+            for lor in pair:
+                p.append(lor.prompt_p)
+            for lor in pair:
+                if lor.prompt_p == max(p):
+                    if lor.is_prompt:
+                        TP += 1
+                    else:
+                        FP += 1
+                else:
+                    if lor.is_prompt:
+                        FN += 1
+                    else:
+                        TN += 1
+        tpr, spc, ppv, fpr = calculate_binary_coeff(TP, FP, TN, FN)
+    print("[BINARY CLASSIFICATION DONE]")
+    return tpr, spc, ppv, fpr
 
 
 def binary_table(events, lors, edep_threshold, dist_threshold):
