@@ -8,6 +8,7 @@ import math
 import sys
 import numpy as np
 from enum import Enum
+from matplotlib import pyplot as plt
 
 
 class CoincType(Enum):
@@ -152,7 +153,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
 
     # loading of 511 keV data
     for f511_file_name in file_list_511:
-        print(f511_file_name)
+        print("[LOADING: "+f511_file_name+"]")
         f_511 = TFile(f511_file_name)
         bufor = []
         for event in f_511.Hits:
@@ -168,6 +169,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
     print('[511 KEV DATA LOADED. LOADING PROMPT DATA...]')
     # loading prompt data
     for f_prompt_file_name in file_list_prompt:
+        print("[LOADING: "+f_prompt_file_name+"]")
         f_prompt = TFile(f_prompt_file_name)
         for event in f_prompt.Hits :
             if is_proper_hit(event, edep_cut, use_goja_event_analysis):
@@ -213,7 +215,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
     return events_true, events_phantom_scattered, events_detector_scattered, events_accidental
 
 
-def find_lors(events, histograms = []):
+def find_lors(events, histograms = [], verbose=False):
     """
     Finds LOR parameters: distance from the origin and angle between OX axis and vector from the origin to the center of LOR.
     Projections of 3D LORs onto OXY plane are analysed.
@@ -223,6 +225,8 @@ def find_lors(events, histograms = []):
     lors = []
     lors_annihilation = []
     lors_with_prompt = []
+    probs511 = []
+    probsPrompt = []
     for event in events:
         for ii in range(3):
             edep1 = event[ii].edep
@@ -238,32 +242,41 @@ def find_lors(events, histograms = []):
             p_prompt = 1.0
             if len(histograms) > 0:
                 # find the probability that LOR is true
+                # find the bin for given edep1
                 index = 0
-                
                 while histograms[0][index] < edep1:
                     index += 1
-                p511 *= histograms[1][index]
+                p511 *= histograms[1][index-1]
+                 # find the bin for given edep2
                 index = 0
                 while histograms[0][index] < edep2:
                     index += 1
-                p511 *= histograms[1][index]
+                p511 *= histograms[1][index-1]
                 # find the probability that LOR contains prompt
                 while histograms[0][index] < edep1:
                     index += 1
-                p_prompt *= histograms[4][index]
+                p_prompt *= histograms[4][index-1]
                 index = 0
                 while histograms[0][index] < edep2:
                     index += 1
-                p_prompt *= histograms[4][index]
+                p_prompt *= histograms[4][index-1]
 
-
-            if ii ==0:
+            # for LORs with at least one annihilation hit
+            if ii == 0:
                 is_true_annihilation = (event[ii].coincType == CoincType.kTrue)
                 lors.append(LOR(d, theta, is_true_annihilation, False, p511, p_prompt)) # True for back-to-back emission
                 lors_annihilation.append(LOR(d, theta, is_true_annihilation, False, p511, p_prompt))
+            # for LORs with prompt hit
             else:
                 lors.append(LOR(d, theta, False, True, p511, p_prompt))
                 lors_with_prompt.append(LOR(d, theta, False, True, p511, p_prompt))
+            probs511.append(p511)
+            probsPrompt.append(p_prompt)
+    if verbose:
+        print('[Verbose mode is ON. Histogram of LORs probabilities will be saved to a file.]')
+        plt.hist([probs511, probsPrompt], 100, histtype='step', fill=False, stacked=False, normed=False, label=["511", "prompt"])
+        plt.legend(loc='upper right')
+        plt.savefig("p_plots.png")
     print('[LORS FOUND]')
     return lors, lors_annihilation, lors_with_prompt
 
@@ -297,7 +310,7 @@ def count_sorted_lors(lors):
     if annihilation_lors_no == 0:
         return 0,0,0
     # divide by the number of aniihilation lors to get fractions
-    print("[ALL LORS: {}[".format(len(lors)))
+    print("[ALL LORS: {}]".format(len(lors)))
     print("[ANNIHILATION LORS FOUND: {}]".format(annihilation_lors_no))
     return d_min/annihilation_lors_no, d_mid/annihilation_lors_no, d_max/annihilation_lors_no
 

@@ -3,7 +3,10 @@
 @author: Rafal Maselek
 This script creates an edep histogram to estimate the probability that a given hit originates from 511 keV annihilation process.
 """
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import pyplot as plt
 import data_loader as dl
 import numpy as np
 
@@ -94,5 +97,5 @@ folder511 = "data/nema511_1_res/"
 folder_prompt = "data/nemaprompt_1_res/"
 for ii in range(50, 101, 100):
     plt.clf()
-    distr, bins = make_histogram(folder511+"anni{}".format(ii)+".root", folder_prompt+"prompt{}".format(ii)+".root", str(ii), True, False)
+    distr, bins = make_histogram(folder511+"anni{}".format(ii)+".root", folder_prompt+"prompt{}".format(ii)+".root", str(ii), False, False)
     save_hist(bins, distr, "histogram.txt")

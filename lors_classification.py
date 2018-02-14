@@ -6,9 +6,9 @@ import numpy as np
 folder511 = "data/nema511_1_res/"
 folder_prompt = "data/nemaprompt_1_res/"
 edep_cut = 0.06
-goja_event_analysis = True
+goja_event_analysis = False
 use_prompt = False
-loop_step = 20
+loop_step = 15
 
 
 TPR = []
@@ -23,9 +23,9 @@ for ii in range(1, 101, loop_step):
                                                                            goja_event_analysis)
     events = events_true+phantom_scatt+detector_scatt+accidential
     histograms = np.loadtxt("histogram.txt")
-    lors, lors_from_annihilation, lors_with_prompt = dl.find_lors(events, histograms)
+    lors, lors_from_annihilation, lors_with_prompt = dl.find_lors(events, histograms, True)
     lors_pairs = cf.remove_farthest_lor(lors)
-    tpr, spc, ppv, fpr = cf.binary_classification_probability(lors_pairs, use_prompt=use_prompt)
+    tpr, spc, ppv, fpr = cf.binary_classification_probability(lors_pairs, use_prompt=use_prompt, verbose=False)
     if not use_prompt:
         print("511 kev file: {}; tpr={} spc={} ppv={} fpr={}".format("anni{}".format(ii), tpr, spc, ppv, fpr))
     TPR.append(tpr)

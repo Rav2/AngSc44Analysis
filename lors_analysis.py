@@ -5,7 +5,10 @@ This script analysis lors: it selects true lors and organizes them by their dist
 three lors
 """
 from __future__ import print_function
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import pyplot as plt
 import data_loader as dl
 import plotter
 import classification as cf

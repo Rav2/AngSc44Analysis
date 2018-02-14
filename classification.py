@@ -6,7 +6,7 @@ This file contains functions for statistical classification of events/lors.
 import sys
 import numpy as np
 
-def calculate_binary_coeff(TP, FP, TN, FN):
+def calculate_binary_coeff(TP, FP, TN, FN, verbose=False):
     """
     Calculates TPR, PPV, FPR and SPC
     :param TP: Number of true positives.
@@ -31,6 +31,9 @@ def calculate_binary_coeff(TP, FP, TN, FN):
         FPR = 1
     else:
         FPR = 1.0-TN/float(TN+FP)
+    if verbose:
+        print("TP={}; TN={}; FP={}; FN={}".format(TP,TN,FP,FN))
+        print("TPR={}; SPC={}; PPV={}; FPR={}".format(TPR, SPC, PPV, FPR))
     return TPR, SPC, PPV, FPR
 
 
@@ -84,9 +87,9 @@ def remove_farthest_lor(lors):
     return np.array(grouped_lors)
 
 
-def binary_classification_probability(pairs_of_lors, use_prompt=False):
+def binary_classification_probability(pairs_of_lors, use_prompt=False, verbose=False):
+    FP = FN = TP = TN = 0
     for pair in pairs_of_lors:
-        FP=FN=TP=TN=0
         p = []
         if not use_prompt:
             for lor in pair:
@@ -116,7 +119,7 @@ def binary_classification_probability(pairs_of_lors, use_prompt=False):
                         FN += 1
                     else:
                         TN += 1
-        tpr, spc, ppv, fpr = calculate_binary_coeff(TP, FP, TN, FN)
+    tpr, spc, ppv, fpr = calculate_binary_coeff(TP, FP, TN, FN, verbose)
     print("[BINARY CLASSIFICATION DONE]")
     return tpr, spc, ppv, fpr
 
