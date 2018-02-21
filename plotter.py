@@ -16,24 +16,19 @@ def plot_d_distribution(lors, filename):
     :param filename: Name of the file with the plot.
     :return: nothing
     """
+    plt.clf()
     d = []
-    theta = []
     for lor in lors:
         d.append(lor.d)
-        theta.append(lor.theta)
-    fig, axarr = plt.subplots(1, 2, figsize=(10, 5))
+    fig, ax = plt.subplots()
     nbins = 50 # no of bin
     if nbins > len(lors):
         nbins = len(lors)
-    axarr[0].hist(d, nbins)
-    axarr[0].set_title('distribution of distance from origin to line')
-    axarr[0].set_xlabel('d [mm]')
-    axarr[0].set_ylabel('entries [1]')
-    axarr[1].hist(theta, nbins)
-    axarr[1].set_title('distribution of the angle od d vector')
-    axarr[1].set_xlabel('theta [rad]')
-    axarr[1].set_ylabel('entries [1]')
-    plt.savefig('results/'+filename)
+    ax.hist(d, nbins)
+    ax.set_title('distribution of distance from origin to line')
+    ax.set_xlabel('d [mm]')
+    ax.set_ylabel('entries [1]')
+    plt.savefig("results/"+filename)
     print('[D DISTRIBUTION PLOTTED]')
 
 
@@ -224,7 +219,7 @@ def plot_lors_fractions2(d_min1, d_mid1, d_max1, source_pars1, d_min2, d_mid2, d
     plt.title('Fractions of annihilation lors as a function of source dimension')
     plt.xlabel('radius of the source cyllinder [mm]')
     plt.ylabel('fraction [1]')
-    labels = ["d_min", "d_mid", "d_max", "d_min_phan", "d_mid_phan", "d_max_phan"]
+    labels = ["d_min", "d_mid", "d_max", "d_min_phantom", "d_mid_phantom", "d_max_phantom"]
     plt.plot(source_pars1, d_min1, "b-", label=labels[0])
     plt.plot(source_pars1, d_mid1, "g-", label=labels[1])
     plt.plot(source_pars1, d_max1, "r-", label=labels[2])

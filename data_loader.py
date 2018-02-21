@@ -62,9 +62,8 @@ class Hit:
 
 class LOR:
     """Class represnting a single Line of response in 2D."""
-    def __init__(self, d, theta, is_from_annihilation, is_prompt, annihilation_p, prompt_p):
+    def __init__(self, d, is_from_annihilation, is_prompt, annihilation_p, prompt_p):
         self.d = d # distance from the origin.
-        self.theta = theta # angle between OX axis and vector connecting the origin and the center of LOR
         self.is_from_annihilation = is_from_annihilation # true if LOR connects two hits by un-scattered 511 keV gammas
         self.is_prompt = is_prompt
         self.annihilation_p = annihilation_p
@@ -156,6 +155,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
         print("[LOADING: "+f511_file_name+"]")
         f_511 = TFile(f511_file_name)
         bufor = []
+        # TODO: Optimize reading from the tree, because it takes way to much time
         for event in f_511.Hits:
             if len(bufor) == 0 or bufor[0].eventID == event.eventID:
                 bufor.append(Hit(event))
@@ -163,7 +163,7 @@ def load_data(file_list_511, file_list_prompt, edep_cut = 0.06, use_goja_event_a
                 for proper_hit in find_coincidences(bufor, edep_cut, use_goja_event_analysis):
                     add_to_proper_hits_511(proper_hit)
                 bufor = [Hit(event)]
-        #f_511.Close()
+        f_511.Close()
 
 
     print('[511 KEV DATA LOADED. LOADING PROMPT DATA...]')
@@ -223,6 +223,7 @@ def find_lors(events, histograms = [], verbose=False):
     :return: Lists of LOR objects: all LORs, LORs coming from annihilation that weren't scattered, LORs containg prompt hit.
     """
     lors = []
+    lors_true_annihilation = []
     lors_annihilation = []
     lors_with_prompt = []
     probs511 = []
@@ -231,13 +232,16 @@ def find_lors(events, histograms = [], verbose=False):
         for ii in range(3):
             edep1 = event[ii].edep
             edep2 = event[(ii+1)%3].edep
-            middleX = 0.5*(event[ii].posX+event[(ii+1)%3].posX)
-            middleY = 0.5*(event[ii].posY+event[(ii+1)%3].posY)
-            A = -1.0*event[(ii+1)%3].posY + event[ii].posY
-            B = event[(ii+1)%3].posX - event[ii].posX
-            C = -1.0*event[ii].posY*B + event[ii].posX*(-1.0 * A)
-            d = math.fabs(C)/math.sqrt(A*A+B*B)
-            theta = math.atan2(middleY, middleX)
+            p1 = np.array([event[ii].posX, event[ii].posY, event[ii].posZ])
+            p2 = np.array([event[(ii+1)%3].posX, event[(ii+1)%3].posY, event[(ii+1)%3].posZ])
+            # construct vector representing the direction of LOR
+            l = p1-p2
+            # find s, which idicates intersection point on LOR with the normal that passes through the origin
+            s = -(p1[0]*l[0]+p1[1]*l[1]+p1[2]*l[2])/(l[0]**2+l[1]**2+l[2]**2)
+            p_intersection = p1 + s*l
+            # d is the distance between the origin (point (0,0,0)) and LOR (intersection point)
+            d = np.sqrt(p_intersection[0]**2+p_intersection[1]**2+p_intersection[2]**2)
+
             p511 = 1.0
             p_prompt = 1.0
             if len(histograms) > 0:
@@ -264,12 +268,14 @@ def find_lors(events, histograms = [], verbose=False):
             # for LORs with at least one annihilation hit
             if ii == 0:
                 is_true_annihilation = (event[ii].coincType == CoincType.kTrue)
-                lors.append(LOR(d, theta, is_true_annihilation, False, p511, p_prompt)) # True for back-to-back emission
-                lors_annihilation.append(LOR(d, theta, is_true_annihilation, False, p511, p_prompt))
+                lors.append(LOR(d, is_true_annihilation, False, p511, p_prompt)) # True for back-to-back emission
+                lors_annihilation.append(LOR(d, is_true_annihilation, False, p511, p_prompt))
+                if is_true_annihilation:
+                    lors_true_annihilation.append(LOR(d, is_true_annihilation, False, p511, p_prompt))
             # for LORs with prompt hit
             else:
-                lors.append(LOR(d, theta, False, True, p511, p_prompt))
-                lors_with_prompt.append(LOR(d, theta, False, True, p511, p_prompt))
+                lors.append(LOR(d, False, True, p511, p_prompt))
+                lors_with_prompt.append(LOR(d, False, True, p511, p_prompt))
             probs511.append(p511)
             probsPrompt.append(p_prompt)
     if verbose:
@@ -278,7 +284,7 @@ def find_lors(events, histograms = [], verbose=False):
         plt.legend(loc='upper right')
         plt.savefig("p_plots.png")
     print('[LORS FOUND]')
-    return lors, lors_annihilation, lors_with_prompt
+    return lors, lors_annihilation, lors_with_prompt, lors_true_annihilation
 
 
 def count_sorted_lors(lors):

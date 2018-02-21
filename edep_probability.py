@@ -86,7 +86,10 @@ def make_histogram(file_511, file_prompt, file_name_end = "0", use_goja=False, s
     true_511_pdf = distr[0]
     print("PDF INTEGRAL FOR TRUE 511 KEV= {}".format(sum(true_511_pdf)))
     plt.legend(loc='upper right')
-    plt.savefig("edep_hist_norm"+file_name_end+".png")
+    plt.title("Deposited energy spectra, normalized as PDF")
+    plt.xlabel("deposited energy [MeV]")
+    plt.ylabel("probability density [1]")
+    plt.savefig("results/edep_hist_norm"+file_name_end+".png")
     return distr, bins
     #plt.show()
 
@@ -95,7 +98,7 @@ def make_histogram(file_511, file_prompt, file_name_end = "0", use_goja=False, s
 # save_hist(bins, distr, "histogram.txt")
 folder511 = "data/nema511_1_res/"
 folder_prompt = "data/nemaprompt_1_res/"
-for ii in range(50, 101, 100):
+for ii in range(1, 101, 25):
     plt.clf()
-    distr, bins = make_histogram(folder511+"anni{}".format(ii)+".root", folder_prompt+"prompt{}".format(ii)+".root", str(ii), False, False)
+    distr, bins = make_histogram(folder511+"anni{}".format(ii)+".root", folder_prompt+"prompt{}".format(ii)+".root", str(ii), True, False)
     save_hist(bins, distr, "histogram.txt")

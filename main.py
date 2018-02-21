@@ -4,8 +4,8 @@
 Main file of the scipt package
 """
 from __future__ import print_function
-import data_loader as dl
 import plotter
+import data_loader as dl
 import classification as cf
 import numpy as np
 import math
@@ -77,24 +77,25 @@ def main():
     # event_check(events)
 
     events = events_true+phantom_scatt+detector_scatt+accidential
-    print(len(events_true), ' ', len(phantom_scatt), ' ', len(events))
+
     # dl.write_goja_output(events_true+phantom_scatt+detector_scatt+accidential)
     histograms = np.loadtxt("histogram.txt")
-    lors, lors_from_annihilation, lors_with_prompt = dl.find_lors(events, histograms)
-    lors_pairs = cf.remove_farthest_lor(lors)
-    tpr, spc, ppv, fpr = cf.binary_classification_probability(lors_pairs, use_prompt=False)
-    print("511 kev: tpr={} spc={} ppv={} fpr={}".format(tpr,spc,ppv,fpr))
+    lors, lors_from_annihilation, lors_with_prompt, lors_true_anni= dl.find_lors(events, histograms)
+    # lors_pairs = cf.remove_farthest_lor(lors)
+    # tpr, spc, ppv, fpr = cf.binary_classification_probability(lors_pairs, use_prompt=False)
+    # print("511 kev: tpr={} spc={} ppv={} fpr={}".format(tpr,spc,ppv,fpr))
 
     plotter.plot_edep_distribution(events, filename='edep_distribution')
     plotter.plot_position_and_time_distribution(events, only_511keV = True)
     plotter.plot_d_distribution(lors, filename='d_distribution')
     plotter.plot_d_distribution(lors_from_annihilation, filename='d_distribution_annihilation_lors')
+    plotter.plot_d_distribution(lors_true_anni, filename='d_distribution_true_annihilation_lors')
     plotter.plot_d_distribution(lors_with_prompt, filename='d_distribution_lors_with_prompt')
 
     # d_tresholds = np.linspace(0, 437.3, 101)
     # TPR, SPC, PPV, FPR = cf.binary_classification_simple(lors, d_tresholds)
     # if len(TPR):
-    #     plotter.plot_classification_plots(TPR, PPV, FPR, d_tresholds)
+        # plotter.plot_classification_plots(TPR, PPV, FPR, d_tresholds)
     print('[EXIT]')
 
 
