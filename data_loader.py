@@ -62,12 +62,12 @@ class Hit:
 
 class LOR:
     """Class represnting a single Line of response in 2D."""
-    def __init__(self, d, is_from_annihilation, is_prompt, annihilation_p, prompt_p):
+    def __init__(self, d, is_from_annihilation, is_prompt, annihilation_p, p_prompt_and_511):
         self.d = d # distance from the origin.
         self.is_from_annihilation = is_from_annihilation # true if LOR connects two hits by un-scattered 511 keV gammas
         self.is_prompt = is_prompt
         self.annihilation_p = annihilation_p
-        self.prompt_p = prompt_p
+        self.p_prompt_and_511 = p_prompt_and_511
 
 
 def is_proper_hit(hit, edep_cut, use_goja_event_analysis=False):
@@ -243,41 +243,35 @@ def find_lors(events, histograms = [], verbose=False):
             d = np.sqrt(p_intersection[0]**2+p_intersection[1]**2+p_intersection[2]**2)
 
             p511 = 1.0
-            p_prompt = 1.0
+            p_prompt_and_511 = 1.0
             if len(histograms) > 0:
                 # find the probability that LOR is true
-                # find the bin for given edep1
-                index = 0
-                while histograms[0][index] < edep1:
-                    index += 1
-                p511 *= histograms[1][index-1]
-                 # find the bin for given edep2
-                index = 0
-                while histograms[0][index] < edep2:
-                    index += 1
-                p511 *= histograms[1][index-1]
-                # find the probability that LOR contains prompt
-                while histograms[0][index] < edep1:
-                    index += 1
-                p_prompt *= histograms[4][index-1]
-                index = 0
-                while histograms[0][index] < edep2:
-                    index += 1
-                p_prompt *= histograms[4][index-1]
+                # find the bin for given edep1 and edep2
+                index1 = 0
+                while histograms[0][index1] < edep1:
+                    index1 += 1
+                index2 = 0
+                while histograms[0][index2] < edep2:
+                    index2 += 1
+                # probability that both photons are 511 keV 
+                p511 *= histograms[1][index1-1] * histograms[1][index2-1]
+                # probability thar one is 511 and the other is prompt
+                #(p1(prompt)*p2(511) + p1(511)*p2(prompt))
+                p_prompt_and_511 = (histograms[4][index1-1] * histograms[1][index2-1] + histograms[1][index1-1] * histograms[4][index2-1])
 
-            # for LORs with at least one annihilation hit
+            # for LORs with both annihilation hits (we take ii=0 and ii+1 into consideration)
             if ii == 0:
                 is_true_annihilation = (event[ii].coincType == CoincType.kTrue)
-                lors.append(LOR(d, is_true_annihilation, False, p511, p_prompt)) # True for back-to-back emission
-                lors_annihilation.append(LOR(d, is_true_annihilation, False, p511, p_prompt))
+                lors.append(LOR(d, is_true_annihilation, False, p511, p_prompt_and_511)) # True for back-to-back emission
+                lors_annihilation.append(LOR(d, is_true_annihilation, False, p511, p_prompt_and_511))
                 if is_true_annihilation:
-                    lors_true_annihilation.append(LOR(d, is_true_annihilation, False, p511, p_prompt))
+                    lors_true_annihilation.append(LOR(d, is_true_annihilation, False, p511, p_prompt_and_511))
             # for LORs with prompt hit
             else:
-                lors.append(LOR(d, False, True, p511, p_prompt))
-                lors_with_prompt.append(LOR(d, False, True, p511, p_prompt))
+                lors.append(LOR(d, False, True, p511, p_prompt_and_511))
+                lors_with_prompt.append(LOR(d, False, True, p511, p_prompt_and_511))
             probs511.append(p511)
-            probsPrompt.append(p_prompt)
+            probsPrompt.append(p_prompt_and_511)
     if verbose:
         print('[Verbose mode is ON. Histogram of LORs probabilities will be saved to a file.]')
         plt.hist([probs511, probsPrompt], 100, histtype='step', fill=False, stacked=False, normed=False, label=["511", "prompt"])

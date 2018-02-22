@@ -1,3 +1,10 @@
+#!/bin/python2.7
+"""
+@author: Rafal Maselek
+This script conducts simple binary classification for one of the two hypothesis:
+1) LOR with greatest possibility to be true is true
+2) LOR with greatest possibility to contain one prompt and one 511 keV is false
+"""
 import data_loader as dl
 import classification as cf
 import plotter
@@ -6,11 +13,18 @@ import timeit
 
 folder511 = "data/nema511_1_res/"
 folder_prompt = "data/nemaprompt_1_res/"
+# lower cut on edep
 edep_cut = 0.06
+# True to analyze detector-scattered and accidental hits
 goja_event_analysis = False
+# If False, hypothesis 1) is used, otherwise 2)
 use_prompt = False
-loop_step = 15
-
+# loop step sets the number of files that will be used (by default from range [1,101) )
+loop_step = 9
+# use sophisticated classificator
+sophisticated = False
+#name of the output file
+filename = "lors_classification.png"
 
 TPR = []
 FPR = []
@@ -23,16 +37,27 @@ for ii in range(1, 101, loop_step):
                                                                            edep_cut,
                                                                            goja_event_analysis)
     events = events_true+phantom_scatt+detector_scatt+accidential
-    histograms = np.loadtxt("histogram.txt")
-    lors, lors_from_annihilation, lors_with_promptm, lors_true_anni = dl.find_lors(events, histograms, True)
+    # name of the histogram file, remeber to use proper file for GOJA-like and non-GOJA analysis!
+    if goja_event_analysis:
+        histograms = np.loadtxt("histogramGOJA.txt")
+    else:
+        histograms = np.loadtxt("histogram.txt")
+    lors, lors_from_annihilation, lors_with_prompt, lors_true_anni = dl.find_lors(events, histograms, verbose=False)
     lors_pairs = cf.remove_farthest_lor(lors)
-    tpr, spc, ppv, fpr = cf.binary_classification_probability(lors_pairs, use_prompt=use_prompt, verbose=False)
-    if not use_prompt:
-        print("511 kev file: {}; tpr={} spc={} ppv={} fpr={}".format("anni{}".format(ii), tpr, spc, ppv, fpr))
+    if sophisticated:
+        tpr, spc, ppv, fpr = cf.binary_classification_probability_sophisticated(lors_pairs, verbose=False)
+    else:
+        tpr, spc, ppv, fpr = cf.binary_classification_probability(lors_pairs, use_prompt=use_prompt, verbose=False)
+    print("[CLASSIFICATION: TPR={} SPC={} PPV={} FPR={}]".format(tpr, spc, ppv, fpr))
     TPR.append(tpr)
     SPC.append(spc)
     PPV.append(ppv)
     FPR.append(fpr)
 
 r = range(1, 101, loop_step)
-lotter.plot_classification_plots(TPR, PPV, FPR, r, "lors_classification.png")
+print("ALL VALUES:")
+print("TPR: ",TPR)
+print("PPV: ",PPV)
+print("SPC: ",SPC)
+print("FPR: ",FPR)
+plotter.plot_classification_plots(TPR, PPV, FPR, r, filename)

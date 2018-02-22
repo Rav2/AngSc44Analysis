@@ -49,7 +49,8 @@ def plot_classification_plots(TPR, PPV, FPR, d_tresholds, filename='classificati
     axarr[0].set_ylim(0.0, 1.0)
     axarr[0].set_title('TPR and PPV as a function o r')
 
-    axarr[1].plot(FPR, TPR, 'b', FPR, FPR, '#000000')
+    diagonal = [0.0, 0.5, 1.0]
+    axarr[1].plot(FPR, TPR, 'b', diagonal, diagonal, '#808080')
     axarr[1].set_title('ROC curve for 44Sc')
     axarr[1].set_xlabel('FPR')
     axarr[1].set_xlim(0.0, 1.0)

@@ -107,9 +107,9 @@ def binary_classification_probability(pairs_of_lors, use_prompt=False, verbose=F
                         TN += 1
         else:
             for lor in pair:
-                p.append(lor.prompt_p)
+                p.append(lor.p_prompt_and_511)
             for lor in pair:
-                if lor.prompt_p == max(p):
+                if lor.p_prompt_and_511 == max(p):
                     if lor.is_prompt:
                         TP += 1
                     else:
@@ -124,35 +124,36 @@ def binary_classification_probability(pairs_of_lors, use_prompt=False, verbose=F
     return tpr, spc, ppv, fpr
 
 
-def binary_table(events, lors, edep_threshold, dist_threshold):
-    """
-    
-    :param events: 
-    :param lors: 
-    :param edep_threshold: 
-    :param dist_threshold: 
-    :return: 
-    """
-    if 3*len(events) != len(lors):
-        raise Exception("Number of lors doesn't match the number of events!")
-    # hypothesis: lor is true iff conditions from both classifications are fullfiled
-    FP=FN=TP=TN=0
-    proper_events = []
-    proper_anni_lors = []
-    for ii in range(len(events)):
-        for jj in range(3):
-            cond_edep = events[ii][jj].edep < edep_threshold and events[ii][(jj+1)%3].edep < edep_threshold
-            cond_dist = lors[3*ii+jj].d < dist_threshold
-            if cond_edep and cond_dist:
-                if lors[3*ii+jj].is_from_annihilation:
+def binary_classification_probability_sophisticated(pairs_of_lors, verbose=False):
+    FP = FN = TP = TN = 0
+    # TODO:FINISH
+    for pair in pairs_of_lors:
+        p = []
+        for ii in range(2):
+            lor = pair[ii]
+            p.append(lor.annihilation_p * (1.0-lor.p_prompt_and_511))
+            if pair[ii].d < pair[(ii+1)%2]:
+                p *= 0.9
+            else:
+                p *= 0.1
+        ii_max_p = 3
+        if p[0] > p[1]:
+            ii_max_p = 0
+        else:
+            ii_max_p = 1
+
+        for ii in range(2):
+            if ii == ii_max_p:
+                if lor.is_from_annihilation:
                     TP += 1
-                    proper_anni_lors.append(lors[3*ii+jj])
-                    proper_events.append(events[ii])
                 else:
                     FP += 1
-            elif lors[3*ii+jj].is_from_annihilation:
-                FN += 1
             else:
-                TN += 1
-    # TODO: finish it
-    return calculate_binary_coeff(TP, FP, TN, FN), proper_events, proper_anni_lors
+                if lor.is_from_annihilation:
+                    FN += 1
+                else:
+                    TN += 1
+
+    tpr, spc, ppv, fpr = calculate_binary_coeff(TP, FP, TN, FN, verbose)
+    print("[BINARY CLASSIFICATION DONE]")
+    return tpr, spc, ppv, fpr

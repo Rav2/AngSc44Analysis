@@ -98,7 +98,7 @@ def make_histogram(file_511, file_prompt, file_name_end = "0", use_goja=False, s
 # save_hist(bins, distr, "histogram.txt")
 folder511 = "data/nema511_1_res/"
 folder_prompt = "data/nemaprompt_1_res/"
-for ii in range(1, 101, 25):
+for ii in range(50, 101, 55):
     plt.clf()
-    distr, bins = make_histogram(folder511+"anni{}".format(ii)+".root", folder_prompt+"prompt{}".format(ii)+".root", str(ii), True, False)
+    distr, bins = make_histogram(folder511+"anni{}".format(ii)+".root", folder_prompt+"prompt{}".format(ii)+".root", str(ii), False, False)
     save_hist(bins, distr, "histogram.txt")
