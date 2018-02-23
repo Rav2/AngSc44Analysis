@@ -133,9 +133,9 @@ def binary_classification_probability_sophisticated(pairs_of_lors, verbose=False
             lor = pair[ii]
             p.append(lor.annihilation_p * (1.0-lor.p_prompt_and_511))
             if pair[ii].d < pair[(ii+1)%2]:
-                p *= 0.9
+                p[ii] *= 0.9
             else:
-                p *= 0.1
+                p[ii] *= 0.1
         ii_max_p = 3
         if p[0] > p[1]:
             ii_max_p = 0
@@ -144,12 +144,12 @@ def binary_classification_probability_sophisticated(pairs_of_lors, verbose=False
 
         for ii in range(2):
             if ii == ii_max_p:
-                if lor.is_from_annihilation:
+                if pair[ii].is_from_annihilation:
                     TP += 1
                 else:
                     FP += 1
             else:
-                if lor.is_from_annihilation:
+                if pair[ii].is_from_annihilation:
                     FN += 1
                 else:
                     TN += 1

@@ -5,33 +5,33 @@ This script conducts simple binary classification for one of the two hypothesis:
 1) LOR with greatest possibility to be true is true
 2) LOR with greatest possibility to contain one prompt and one 511 keV is false
 """
+import plotter
 import data_loader as dl
 import classification as cf
-import plotter
 import numpy as np
 import timeit
 
-folder511 = "data/nema511_1_res/"
-folder_prompt = "data/nemaprompt_1_res/"
+folder511 = "data/NEMA/"
+folder_prompt = "data/NEMA/"
 # lower cut on edep
 edep_cut = 0.06
 # True to analyze detector-scattered and accidental hits
-goja_event_analysis = False
+goja_event_analysis = True
 # If False, hypothesis 1) is used, otherwise 2)
 use_prompt = False
 # loop step sets the number of files that will be used (by default from range [1,101) )
-loop_step = 9
+loop_step = 8
 # use sophisticated classificator
-sophisticated = False
+sophisticated = True
 #name of the output file
-filename = "lors_classification.png"
+filename = "lors_class_sophi_GOJA.png"
 
 TPR = []
 FPR = []
 PPV = []
 SPC = []
 
-for ii in range(1, 101, loop_step):
+for ii in range(1, 100, loop_step):
     events_true, phantom_scatt, detector_scatt, accidential = dl.load_data([folder511+"anni{}".format(ii)+".root"],
                                                                            [folder_prompt+"prompt{}".format(ii)+".root"],
                                                                            edep_cut,
@@ -54,7 +54,7 @@ for ii in range(1, 101, loop_step):
     PPV.append(ppv)
     FPR.append(fpr)
 
-r = range(1, 101, loop_step)
+r = range(1, 100, loop_step)
 print("ALL VALUES:")
 print("TPR: ",TPR)
 print("PPV: ",PPV)

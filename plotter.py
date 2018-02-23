@@ -47,7 +47,7 @@ def plot_classification_plots(TPR, PPV, FPR, d_tresholds, filename='classificati
     axarr[0].legend(['TPR', 'PPV'])
     axarr[0].set_xlabel('r [mm]')
     axarr[0].set_ylim(0.0, 1.0)
-    axarr[0].set_title('TPR and PPV as a function o r')
+    axarr[0].set_title('TPR and PPV as a function of r')
 
     diagonal = [0.0, 0.5, 1.0]
     axarr[1].plot(FPR, TPR, 'b', diagonal, diagonal, '#808080')
